@@ -24,8 +24,11 @@ connectDB()
     console.log("MONGODB connection failed !!!", err);
   });
 
+
+
 /*
-Approach I
+Approach II 👆
+Approach I  👇
 ----------
 import express from "express";
 const app = express();
