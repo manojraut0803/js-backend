@@ -50,7 +50,7 @@ const userSchema = new Schema(
 );
 
 // custom middleware
-// plugins, hooks(pre)
+// plugins, hooks(pre)  || bcrypt
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return next();
   this.password = bcrypt.hash(this.password, 10);
@@ -62,7 +62,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// AccessToken
+// AccessToken  || jwt  (json web token)
 userSchema.methods.generateAccessToken = async function () {
   return await jwt.sign(
     {
