@@ -10,30 +10,33 @@ const registerUser = asyncHandler(async (req, res) => {
   //  user registration steps
   // [1] get user details from frontend
   const { fullName, email, userName, password } = req.body;
-  console.log("email: ", email);
+  // console.log("email: ", email);
 
   // [2] validation - if fields are empty?
   //   if (fullName === "") {
   //     throw new ApiError(400, "full name is required!");
   //   }
-  if (
-    [fullName, email, userName, password].some((field) => field?.trim() === "")
-  ) {
+  if ( [fullName, email, userName, password].some((field) => field?.trim() === "") ) {
     throw new ApiError(400, "All fields are required!");
   }
 
   // [3] check if user already exits
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     $or: [{ userName }, { email }],
   });
 
   if (existedUser) {
     throw new ApiError(409, "User with email and username already exists");
   }
+  // console.log(req.files);
 
   // [4] check for images - avatar and cover image
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  let coverImageLocalPath;
+  if ( req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0 ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
@@ -54,7 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImage: coverImage?.url || "",
     email,
     password,
-    userName: username.toLowerCase(),
+    userName: userName.toLowerCase(),
   });
 
   // [7] remove password and username
@@ -68,9 +71,9 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   //[9] return response
-  return res.status(201).json(new ApiResponse(200, createdUser, "User registered successfully"));
-
-
+  return res
+    .status(201)
+    .json(new ApiResponse(200, createdUser, "User registered successfully"));
 });
 
 export { registerUser };
