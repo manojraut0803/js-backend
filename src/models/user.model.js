@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const userSchema = new Schema(
+const userSchema = new Schema( 
   {
     userName: {
       type: String,
@@ -51,16 +51,17 @@ const userSchema = new Schema(
 
 // custom middleware
 // plugins, hooks(pre)  || bcrypt
-userSchema.pre("save", async function () {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
-  // next();
+  next();
 });
 
 // custom methods   for comparing password
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
+
 
 // AccessToken  || jwt  (json web token)
 userSchema.methods.generateAccessToken = async function () {
@@ -89,6 +90,6 @@ userSchema.methods.generateRefreshToken = async function () {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   );
-};
+}; 
 
 export const User = mongoose.model("User", userSchema);
